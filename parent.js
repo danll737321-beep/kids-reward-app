@@ -64,9 +64,6 @@ const addTaskBtn = document.getElementById('addTaskBtn');
 const newRewardNameEl = document.getElementById('newRewardName');
 const newRewardCostEl = document.getElementById('newRewardCost');
 const addRewardBtn = document.getElementById('addRewardBtn');
-const newKidNameEl = document.getElementById('newKidName');
-const newKidPinEl = document.getElementById('newKidPin');
-const addKidBtn = document.getElementById('addKidBtn');
 
 // ---------- date helpers ----------
 
@@ -126,7 +123,7 @@ function renderRedemptionHistory() {
   redemptionHistoryEl.innerHTML = redemptionHistory.slice().reverse().map(item => `
     <div class="redemption-item">
       <span class="name">${item.name}<span class="meta"> · ${item.date}</span></span>
-      <span class="cost">-${item.cost}</span>
+      <span class="cost ${item.sign === '+' ? 'positive' : ''}">${item.sign || '-'}${item.cost}</span>
     </div>
   `).join('');
 }
@@ -165,6 +162,9 @@ function renderWeekHead() {
 function renderWeekTable() {
   taskListEl.innerHTML = '';
   TASKS.forEach((task, idx) => {
+    const row = document.createElement('div');
+    row.className = 'task-card-row';
+
     const card = document.createElement('div');
     card.className = 'task-card';
 
@@ -173,7 +173,6 @@ function renderWeekTable() {
         <button data-reorder-dir="up" data-reorder-idx="${idx}" ${idx === 0 ? 'disabled' : ''}>▲</button>
         <button data-reorder-dir="down" data-reorder-idx="${idx}" ${idx === TASKS.length - 1 ? 'disabled' : ''}>▼</button>
       </span>`;
-    const removeHtml = `<button class="task-remove-btn" data-remove-idx="${idx}" title="Remove task">✕</button>`;
     const editHtml = `<button class="task-points-edit" data-edit-idx="${idx}">edit</button>`;
 
     const daysHtml = DAYS.map(day => `<div class="day-cell" data-task="${task.task_id}" data-day="${day}"></div>`).join('');
@@ -182,9 +181,17 @@ function renderWeekTable() {
       ${reorderHtml}
       <div class="task-card-name">${task.title}<span class="task-points">+${task.points} / day${editHtml}</span></div>
       <div class="task-card-days">${daysHtml}</div>
-      ${removeHtml}
     `;
-    taskListEl.appendChild(card);
+    row.appendChild(card);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'task-remove-btn';
+    removeBtn.title = 'Remove task';
+    removeBtn.textContent = '✕';
+    removeBtn.dataset.removeIdx = idx;
+    row.appendChild(removeBtn);
+
+    taskListEl.appendChild(row);
 
     card.querySelectorAll('.day-cell').forEach(cellEl => {
       const day = cellEl.dataset.day;
@@ -428,7 +435,9 @@ function bindBonusCard() {
       const result = await apiPost('awardBonus', { kid: activeKid, reason, points });
       if (!result.success) throw new Error('award failed');
       balance = result.balance;
+      redemptionHistory.push({ name: reason, cost: points, date: formatToday(), sign: '+' });
       updatePointsDisplay();
+      renderRedemptionHistory();
       showToast(`+${points} pts for "${reason}"`);
       bonusReasonEl.value = ''; bonusPointsEl.value = '';
     } catch (err) {
@@ -477,32 +486,12 @@ function bindAddRewardCard() {
   });
 }
 
-function bindAddKidCard() {
-  addKidBtn.addEventListener('click', async () => {
-    const name = newKidNameEl.value.trim();
-    const pin = newKidPinEl.value.trim();
-    if (!name) { showToast('Give the kid a name'); return; }
-    if (!/^\d{4}$/.test(pin)) { showToast('PIN must be 4 digits'); return; }
-    try {
-      const result = await apiPost('addKid', { name, pin });
-      if (!result.success) throw new Error('add kid failed');
-      KIDS.push(result.kid);
-      renderKidSelect();
-      newKidNameEl.value = ''; newKidPinEl.value = '';
-      showToast(`Added "${name}" — PIN is ${pin}`);
-    } catch (err) {
-      showToast('Network hiccup, try again');
-    }
-  });
-}
-
 function bindAllCards() {
   bindCashCard();
   bindSurpriseCard();
   bindBonusCard();
   bindAddTaskCard();
   bindAddRewardCard();
-  bindAddKidCard();
 }
 
 // ---------- history ----------
