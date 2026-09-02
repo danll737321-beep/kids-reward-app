@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Parent — This Week</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.pin-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 100;
+}
+.pin-screen input {
+  font-size: 24px;
+  letter-spacing: 8px;
+  text-align: center;
+  width: 160px;
+  padding: 12px;
+  border: 2px solid #E3E9F0;
+  border-radius: 12px;
+  font-family: 'Baloo 2', sans-serif;
+}
+.pin-screen button {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--white);
+  background: var(--blue);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.pin-error {
+  color: var(--coral);
+  font-size: 13px;
+  min-height: 18px;
+}
+</style>
+</head>
+<body>
+
+<div class="pin-screen" id="pinScreen">
+  <h1 style="margin:0;">Parent Access</h1>
+  <input type="password" id="pinInput" inputmode="numeric" maxlength="4" placeholder="••••">
+  <button id="pinSubmitBtn">Unlock</button>
+  <div class="pin-error" id="pinError"></div>
+</div>
+
+<div id="appContent" style="display:none;">
+  <div class="topbar">
+    <span class="mode-label">Parent Mode</span>
+  </div>
+
+  <header class="scoreboard">
+    <div class="scoreboard-stats">
+      <div class="scoreboard-stat">
+        <div class="scoreboard-label">This Week</div>
+        <div class="scoreboard-value" id="pointsValue">--</div>
+      </div>
+      <div class="scoreboard-stat">
+        <div class="scoreboard-label">Total</div>
+        <div class="scoreboard-value scoreboard-value-secondary" id="totalValue">--</div>
+      </div>
+    </div>
+    <div class="redemption-history" id="redemptionHistory"></div>
+  </header>
+
+  <main>
+    <h1>This Week</h1>
+    <div class="legend">Blue = kid marked done &nbsp; Gold = tap to approve and award points</div>
+
+    <div class="surprise-card" id="addTaskCard" style="margin-bottom: 12px;">
+      <div class="surprise-title">Add Task</div>
+      <div class="surprise-row">
+        <input type="text" id="newTaskTitle" placeholder="Task name">
+        <input type="number" id="newTaskPoints" placeholder="pts/day" min="1">
+        <button class="reward-btn" id="addTaskBtn">Add</button>
+      </div>
+      <div class="surprise-hint">New tasks appear in this week's grid right away</div>
+    </div>
+
+    <table class="week-table">
+      <thead>
+        <tr id="weekTableHead">
+          <th class="task-name-cell"></th>
+        </tr>
+      </thead>
+      <tbody id="weekTableBody">
+        <tr><td class="loading">Loading...</td></tr>
+      </tbody>
+    </table>
+
+    <div class="surprise-card" id="bonusCard" style="margin-top: 12px;">
+      <div class="surprise-title">Bonus Points</div>
+      <div class="surprise-row">
+        <input type="text" id="bonusReason" placeholder="For what?">
+        <input type="number" id="bonusPoints" placeholder="pts" min="1">
+        <button class="reward-btn" id="bonusAwardBtn">Award</button>
+      </div>
+      <div class="surprise-hint">Extra good? Extra points!</div>
+    </div>
+
+    <section class="rewards-section">
+      <h1>Rewards</h1>
+
+      <div class="surprise-card" id="addRewardCard" style="margin-bottom: 12px;">
+        <div class="surprise-title">Add Reward</div>
+        <div class="surprise-row">
+          <input type="text" id="newRewardName" placeholder="Reward name">
+          <input type="number" id="newRewardCost" placeholder="pts" min="1">
+          <button class="reward-btn" id="addRewardBtn">Add</button>
+        </div>
+        <div class="surprise-hint">New rewards appear in the list right away</div>
+      </div>
+
+      <div class="rewards-list" id="rewardsList"></div>
+
+      <div class="surprise-card" id="cashCard" style="margin-top: 10px;">
+        <div class="surprise-title">Cash It In <span style="font-weight:400; font-size:12px; color:#6B7A90;">(100 pts = $1)</span></div>
+        <div class="surprise-row">
+          <input type="number" id="cashPoints" placeholder="pts" min="1">
+          <span id="cashPreview" class="cash-preview">$0.00</span>
+          <button class="reward-btn" id="cashRedeemBtn">Redeem</button>
+        </div>
+        <div class="surprise-hint">Pick points to cash out</div>
+      </div>
+
+      <div class="surprise-card" id="surpriseCard" style="margin-top: 10px;">
+        <div class="surprise-title">Surprise!</div>
+        <div class="surprise-row">
+          <input type="text" id="surpriseName" placeholder="For what?">
+          <input type="number" id="surprisePoints" placeholder="pts" min="1">
+          <button class="reward-btn" id="surpriseRedeemBtn">Redeem</button>
+        </div>
+        <div class="surprise-hint">You set the price</div>
+      </div>
+    </section>
+
+    <section class="history-section">
+      <h1>History</h1>
+      <div class="history-list" id="historyList"></div>
+    </section>
+  </main>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="parent.js"></script>
+</body>
+</html>

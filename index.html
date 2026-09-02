@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>This Week</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="scoreboard">
+  <div class="scoreboard-stats">
+    <div class="scoreboard-stat">
+      <div class="scoreboard-label">This Week</div>
+      <div class="scoreboard-value" id="pointsValue">--</div>
+    </div>
+    <div class="scoreboard-stat">
+      <div class="scoreboard-label">Total</div>
+      <div class="scoreboard-value scoreboard-value-secondary" id="totalValue">--</div>
+    </div>
+  </div>
+  <div class="redemption-history" id="redemptionHistory"></div>
+</header>
+
+<main>
+  <h1>This Week</h1>
+  <div class="legend" id="legendText">Blue = tap when done &nbsp; Gold = parent said yes</div>
+
+  <table class="week-table">
+    <thead>
+      <tr id="weekTableHead">
+        <th class="task-name-cell"></th>
+      </tr>
+    </thead>
+    <tbody id="weekTableBody">
+      <tr><td class="loading">Loading...</td></tr>
+    </tbody>
+  </table>
+
+  <section class="rewards-section">
+    <h1>Rewards</h1>
+    <div class="rewards-list" id="rewardsList"></div>
+
+    <div class="surprise-card" id="cashCard" style="margin-top: 10px;">
+      <div class="surprise-title">Cash It In <span style="font-weight:400; font-size:12px; color:#6B7A90;">(100 pts = $1)</span></div>
+      <div class="surprise-row">
+        <input type="number" id="cashPoints" placeholder="pts" min="1">
+        <span id="cashPreview" class="cash-preview">$0.00</span>
+        <button class="reward-btn" id="cashRedeemBtn">Redeem</button>
+      </div>
+      <div class="surprise-hint">Pick points to cash out</div>
+    </div>
+  </section>
+
+  <section class="history-section">
+    <h1>History</h1>
+    <div class="history-list" id="historyList"></div>
+  </section>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
