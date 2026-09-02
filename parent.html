@@ -9,42 +9,23 @@
 <link rel="stylesheet" href="style.css">
 <style>
 .pin-screen {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  z-index: 100;
+  position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px; z-index: 100;
 }
 .pin-screen input {
-  font-size: 24px;
-  letter-spacing: 8px;
-  text-align: center;
-  width: 160px;
-  padding: 12px;
-  border: 2px solid #E3E9F0;
-  border-radius: 12px;
-  font-family: 'Baloo 2', sans-serif;
+  font-size: 24px; letter-spacing: 8px; text-align: center; width: 160px; padding: 12px;
+  border: 2px solid #E3E9F0; border-radius: 12px; font-family: 'Baloo 2', sans-serif;
 }
 .pin-screen button {
-  font-family: 'Baloo 2', sans-serif;
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--white);
-  background: var(--blue);
-  border: none;
-  padding: 12px 24px;
-  border-radius: 12px;
-  cursor: pointer;
+  font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 15px; color: var(--white);
+  background: var(--blue); border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer;
 }
-.pin-error {
-  color: var(--coral);
-  font-size: 13px;
-  min-height: 18px;
+.pin-error { color: var(--coral); font-size: 13px; min-height: 18px; }
+.kid-select {
+  font-size: 13px; font-weight: 600; color: var(--ink); border: 2px solid #E3E9F0;
+  border-radius: 10px; padding: 6px 10px; font-family: inherit;
 }
+.topbar { flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -59,6 +40,16 @@
 <div id="appContent" style="display:none;">
   <div class="topbar">
     <span class="mode-label">Parent Mode</span>
+    <select class="kid-select" id="kidSelect"></select>
+  </div>
+
+  <div class="surprise-card" id="addKidCard" style="margin: 12px auto 0; max-width: 536px;">
+    <div class="surprise-title">Add Kid</div>
+    <div class="surprise-row">
+      <input type="text" id="newKidName" placeholder="Name">
+      <input type="text" id="newKidPin" placeholder="4-digit PIN" maxlength="4" inputmode="numeric">
+      <button class="reward-btn" id="addKidBtn">Add</button>
+    </div>
   </div>
 
   <header class="scoreboard">
@@ -76,29 +67,11 @@
   </header>
 
   <main>
-    <h1>This Week</h1>
+    <h1 id="weekHeading">This Week</h1>
     <div class="legend">Blue = kid marked done &nbsp; Gold = tap to approve and award points</div>
 
-    <div class="surprise-card" id="addTaskCard" style="margin-bottom: 12px;">
-      <div class="surprise-title">Add Task</div>
-      <div class="surprise-row">
-        <input type="text" id="newTaskTitle" placeholder="Task name">
-        <input type="number" id="newTaskPoints" placeholder="pts/day" min="1">
-        <button class="reward-btn" id="addTaskBtn">Add</button>
-      </div>
-      <div class="surprise-hint">New tasks appear in this week's grid right away</div>
-    </div>
-
-    <table class="week-table">
-      <thead>
-        <tr id="weekTableHead">
-          <th class="task-name-cell"></th>
-        </tr>
-      </thead>
-      <tbody id="weekTableBody">
-        <tr><td class="loading">Loading...</td></tr>
-      </tbody>
-    </table>
+    <div class="week-day-header" id="weekDayHeader"></div>
+    <div class="task-list" id="taskList"></div>
 
     <div class="surprise-card" id="bonusCard" style="margin-top: 12px;">
       <div class="surprise-title">Bonus Points</div>
@@ -107,22 +80,19 @@
         <input type="number" id="bonusPoints" placeholder="pts" min="1">
         <button class="reward-btn" id="bonusAwardBtn">Award</button>
       </div>
-      <div class="surprise-hint">Extra good? Extra points!</div>
+    </div>
+
+    <div class="surprise-card" id="addTaskCard" style="margin-top: 10px;">
+      <div class="surprise-title">Add Task</div>
+      <div class="surprise-row">
+        <input type="text" id="newTaskTitle" placeholder="Task name">
+        <input type="number" id="newTaskPoints" placeholder="pts/day" min="1">
+        <button class="reward-btn" id="addTaskBtn">Add</button>
+      </div>
     </div>
 
     <section class="rewards-section">
       <h1>Rewards</h1>
-
-      <div class="surprise-card" id="addRewardCard" style="margin-bottom: 12px;">
-        <div class="surprise-title">Add Reward</div>
-        <div class="surprise-row">
-          <input type="text" id="newRewardName" placeholder="Reward name">
-          <input type="number" id="newRewardCost" placeholder="pts" min="1">
-          <button class="reward-btn" id="addRewardBtn">Add</button>
-        </div>
-        <div class="surprise-hint">New rewards appear in the list right away</div>
-      </div>
-
       <div class="rewards-list" id="rewardsList"></div>
 
       <div class="surprise-card" id="cashCard" style="margin-top: 10px;">
@@ -132,7 +102,6 @@
           <span id="cashPreview" class="cash-preview">$0.00</span>
           <button class="reward-btn" id="cashRedeemBtn">Redeem</button>
         </div>
-        <div class="surprise-hint">Pick points to cash out</div>
       </div>
 
       <div class="surprise-card" id="surpriseCard" style="margin-top: 10px;">
@@ -142,7 +111,15 @@
           <input type="number" id="surprisePoints" placeholder="pts" min="1">
           <button class="reward-btn" id="surpriseRedeemBtn">Redeem</button>
         </div>
-        <div class="surprise-hint">You set the price</div>
+      </div>
+
+      <div class="surprise-card" id="addRewardCard" style="margin-top: 10px;">
+        <div class="surprise-title">Add Reward</div>
+        <div class="surprise-row">
+          <input type="text" id="newRewardName" placeholder="Reward name">
+          <input type="number" id="newRewardCost" placeholder="pts" min="1">
+          <button class="reward-btn" id="addRewardBtn">Add</button>
+        </div>
       </div>
     </section>
 
