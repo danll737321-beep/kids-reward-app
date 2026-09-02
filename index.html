@@ -7,58 +7,77 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+.pin-error { color: var(--coral); font-size: 13px; min-height: 18px; }
+#kidPinInput {
+  font-size: 24px; letter-spacing: 8px; text-align: center; width: 160px;
+  padding: 12px; border: 2px solid #E3E9F0; border-radius: 12px; font-family: 'Baloo 2', sans-serif;
+}
+#kidPinSubmitBtn {
+  font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 15px; color: var(--white);
+  background: var(--blue); border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer;
+}
+#kidPinBackBtn { font-size: 13px; color: #6B7A90; background: none; border: none; cursor: pointer; text-decoration: underline; }
+</style>
 </head>
 <body>
 
-<header class="scoreboard">
-  <div class="scoreboard-stats">
-    <div class="scoreboard-stat">
-      <div class="scoreboard-label">This Week</div>
-      <div class="scoreboard-value" id="pointsValue">--</div>
-    </div>
-    <div class="scoreboard-stat">
-      <div class="scoreboard-label">Total</div>
-      <div class="scoreboard-value scoreboard-value-secondary" id="totalValue">--</div>
-    </div>
+<div class="kid-picker" id="kidPicker">
+  <div id="kidPickerStep1">
+    <h1 style="text-align:center;">Who are you?</h1>
+    <div id="kidPickerButtons"></div>
   </div>
-  <div class="redemption-history" id="redemptionHistory"></div>
-</header>
+  <div id="kidPickerStep2" style="display:none; flex-direction:column; align-items:center; gap:14px;">
+    <h1 id="kidPinHeading">Enter your PIN</h1>
+    <input type="password" id="kidPinInput" inputmode="numeric" maxlength="4" placeholder="••••">
+    <button id="kidPinSubmitBtn">Unlock</button>
+    <button id="kidPinBackBtn">Back</button>
+    <div class="pin-error" id="kidPinError"></div>
+  </div>
+</div>
 
-<main>
-  <h1>This Week</h1>
-  <div class="legend" id="legendText">Blue = tap when done &nbsp; Gold = parent said yes</div>
-
-  <table class="week-table">
-    <thead>
-      <tr id="weekTableHead">
-        <th class="task-name-cell"></th>
-      </tr>
-    </thead>
-    <tbody id="weekTableBody">
-      <tr><td class="loading">Loading...</td></tr>
-    </tbody>
-  </table>
-
-  <section class="rewards-section">
-    <h1>Rewards</h1>
-    <div class="rewards-list" id="rewardsList"></div>
-
-    <div class="surprise-card" id="cashCard" style="margin-top: 10px;">
-      <div class="surprise-title">Cash It In <span style="font-weight:400; font-size:12px; color:#6B7A90;">(100 pts = $1)</span></div>
-      <div class="surprise-row">
-        <input type="number" id="cashPoints" placeholder="pts" min="1">
-        <span id="cashPreview" class="cash-preview">$0.00</span>
-        <button class="reward-btn" id="cashRedeemBtn">Redeem</button>
+<div id="appContent" style="display:none;">
+  <header class="scoreboard">
+    <div class="scoreboard-stats">
+      <div class="scoreboard-stat">
+        <div class="scoreboard-label">This Week</div>
+        <div class="scoreboard-value" id="pointsValue">--</div>
       </div>
-      <div class="surprise-hint">Pick points to cash out</div>
+      <div class="scoreboard-stat">
+        <div class="scoreboard-label">Total</div>
+        <div class="scoreboard-value scoreboard-value-secondary" id="totalValue">--</div>
+      </div>
     </div>
-  </section>
+    <div class="redemption-history" id="redemptionHistory"></div>
+  </header>
 
-  <section class="history-section">
-    <h1>History</h1>
-    <div class="history-list" id="historyList"></div>
-  </section>
-</main>
+  <main>
+    <h1>This Week</h1>
+    <div class="legend">Blue = tap when done &nbsp; Gold = parent said yes</div>
+
+    <div class="week-day-header" id="weekDayHeader"></div>
+    <div class="task-list" id="taskList"></div>
+
+    <section class="rewards-section">
+      <h1>Rewards</h1>
+      <div class="rewards-list" id="rewardsList"></div>
+
+      <div class="surprise-card" id="cashCard" style="margin-top: 10px;">
+        <div class="surprise-title">Cash It In <span style="font-weight:400; font-size:12px; color:#6B7A90;">(100 pts = $1)</span></div>
+        <div class="surprise-row">
+          <input type="number" id="cashPoints" placeholder="pts" min="1">
+          <span id="cashPreview" class="cash-preview">$0.00</span>
+          <button class="reward-btn" id="cashRedeemBtn">Redeem</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="history-section">
+      <h1>History</h1>
+      <div class="history-list" id="historyList"></div>
+    </section>
+  </main>
+</div>
 
 <div id="toast" class="toast"></div>
 
