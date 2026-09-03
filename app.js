@@ -158,7 +158,7 @@ function renderRedemptionHistory() {
     return;
   }
   redemptionHistoryEl.innerHTML = redemptionHistory
-    .slice().reverse()
+    .slice().reverse().slice(0, 3)
     .map(item => `
       <div class="redemption-item">
         <span class="name">${item.name}<span class="meta"> · ${item.date}</span></span>
