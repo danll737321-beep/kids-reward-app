@@ -153,10 +153,11 @@ kidSelectEl.addEventListener('change', async () => {
 function renderWeekHead() {
   const todayStr = new Date().toDateString();
   const fmt = d => `${d.getMonth() + 1}/${d.getDate()}`;
-  weekDayHeaderEl.innerHTML = '<div class="task-name-spacer"></div>' + weekDates.map((d, i) => {
+  const labels = weekDates.map((d, i) => {
     const isToday = d.toDateString() === todayStr;
     return `<div class="day-label ${isToday ? 'today-col' : ''}">${DAYS[i]}<span class="day-num">${fmt(d)}</span></div>`;
   }).join('');
+  weekDayHeaderEl.innerHTML = '<div class="task-name-spacer"></div><div class="week-day-header-days">' + labels + '</div>';
 }
 
 function renderWeekTable() {
