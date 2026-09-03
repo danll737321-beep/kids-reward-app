@@ -374,3 +374,4 @@ h1 {
 .surprise-card { display: flex; align-items: center; gap: 10px; background: var(--white); border: 2px dashed var(--grey); border-radius: 16px; padding: 12px 16px; flex-wrap: nowrap; }
 .surprise-title { font-size: 14px; font-weight: 600; flex-shrink: 0; white-space: nowrap; margin-bottom: 0; }
 .surprise-row { display: flex; gap: 8px; flex: 1; min-width: 0; }
+.surprise-row .reward-btn { margin-left: auto; flex-shrink: 0; }
