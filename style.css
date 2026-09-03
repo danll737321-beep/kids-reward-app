@@ -386,3 +386,5 @@ h1 {
 .surprise-title { font-size: 14px; font-weight: 600; flex-shrink: 0; white-space: nowrap; margin-bottom: 0; }
 .surprise-row { display: flex; gap: 8px; flex: 1; min-width: 0; }
 .surprise-row .reward-btn { margin-left: auto; flex-shrink: 0; }
+
+.kid-name-label { font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 15px; color: var(--blue-dark); margin: 0 0 2px 6px; }
