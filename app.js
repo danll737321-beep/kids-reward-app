@@ -59,6 +59,7 @@ async function tryKidUnlock() {
     const result = await apiPost('checkKidPin', { kid_id: pendingKid.kid_id, pin: kidPinInputEl.value });
     if (result.valid) {
       KID = pendingKid.kid_id;
+      document.getElementById('kidNameLabel').textContent = pendingKid.name;
       kidPickerEl.style.display = 'none';
       appContentEl.style.display = 'block';
       init();
