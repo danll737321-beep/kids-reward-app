@@ -87,15 +87,6 @@
       <h1>Rewards</h1>
       <div class="rewards-list" id="rewardsList"></div>
 
-      <div class="surprise-card" id="cashCard" style="margin-top: 10px;">
-        <div class="surprise-title">Cash It In <span style="font-weight:400; font-size:12px; color:#6B7A90;">(100 pts = $1)</span></div>
-        <div class="surprise-row">
-          <input type="number" id="cashPoints" placeholder="pts" min="1">
-          <span id="cashPreview" class="cash-preview">$0.00</span>
-          <button class="reward-btn" id="cashRedeemBtn">Redeem</button>
-        </div>
-      </div>
-
       <div class="surprise-card" id="surpriseCard" style="margin-top: 10px;">
         <div class="surprise-title">Surprise!</div>
         <div class="surprise-row">
@@ -119,6 +110,15 @@
       <h1>History</h1>
       <div class="history-list" id="historyList"></div>
     </section>
+
+    <div class="surprise-card surprise-card-stacked" id="cashCard" style="margin-top: 16px;">
+      <div class="surprise-title">Cash It In <span style="font-weight:400; font-size:12px; color:#6B7A90;">(100 pts = $1)</span></div>
+      <div class="surprise-row">
+        <input type="number" id="cashPoints" placeholder="pts" min="1">
+        <span id="cashPreview" class="cash-preview">$0.00</span>
+        <button class="reward-btn" id="cashRedeemBtn">Redeem</button>
+      </div>
+    </div>
   </main>
 </div>
 
