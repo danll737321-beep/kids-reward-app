@@ -1,6 +1,6 @@
 // ==== 設定 ====
 const API_URL = 'https://script.google.com/macros/s/AKfycbxdNkLfxDi33wjWTPmMYxH1otbD-GpcdBCWJP_cMEazjz-MChH5bjfpodOric4G13Hv/exec';
-const PARENT_PIN = '1234'; // demo PIN — change before real use
+const PARENT_PIN = '1225';
 
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const CASH_RATE = 100;
