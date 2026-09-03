@@ -120,7 +120,7 @@ function updatePointsDisplay() {
 }
 function renderRedemptionHistory() {
   if (!redemptionHistory.length) { redemptionHistoryEl.innerHTML = '<div class="redemption-empty">No rewards redeemed yet</div>'; return; }
-  redemptionHistoryEl.innerHTML = redemptionHistory.slice().reverse().map(item => `
+  redemptionHistoryEl.innerHTML = redemptionHistory.slice().reverse().slice(0, 3).map(item => `
     <div class="redemption-item">
       <span class="name">${item.name}<span class="meta"> · ${item.date}</span></span>
       <span class="cost ${item.sign === '+' ? 'positive' : ''}">${item.sign || '-'}${item.cost}</span>
