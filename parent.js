@@ -523,7 +523,8 @@ async function loadKidData() {
 }
 
 function renderAll() {
-  weekHeadingEl.textContent = `${kidName(activeKid)}'s Week`;
+  document.getElementById('kidNameLabel').textContent = kidName(activeKid);
+  weekHeadingEl.textContent = 'This Week';
   renderWeekHead();
   updatePointsDisplay();
   renderWeekTable();
