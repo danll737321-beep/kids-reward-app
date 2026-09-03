@@ -178,10 +178,10 @@ function renderWeekTable() {
     const daysHtml = DAYS.map(day => `<div class="day-cell" data-task="${task.task_id}" data-day="${day}"></div>`).join('');
 
     card.innerHTML = `
-      ${reorderHtml}
       <div class="task-card-name">${task.title}<span class="task-points">+${task.points} / day${editHtml}</span></div>
       <div class="task-card-days">${daysHtml}</div>
     `;
+    row.innerHTML = reorderHtml;
     row.appendChild(card);
 
     const removeBtn = document.createElement('button');
