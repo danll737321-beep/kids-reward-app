@@ -326,17 +326,20 @@ function renderHistory() {
 async function init() {
   renderWeekHead();
   try {
-    const [tasks, rewards, status, history] = await Promise.all([
+    const [tasks, rewards, status, history, activity] = await Promise.all([
       apiGet('getTasks'),
       apiGet('getRewards'),
       apiGet('getWeekStatus', { kid: KID, week_start: weekStart }),
-      apiGet('getHistory', { kid: KID, weeks: 2 })
+      apiGet('getHistory', { kid: KID, weeks: 2 }),
+      apiGet('getRecentActivity', { kid: KID, limit: 3 })
     ]);
     TASKS = tasks;
     REWARDS = rewards;
     weekStatus = status.tasks || {};
     balance = status.balance || 0;
     pastWeeks = history || [];
+    redemptionHistory.length = 0;
+    redemptionHistory.push(...(activity || []).reverse()); // reverse: renderRedemptionHistory re-reverses to show newest first
 
     renderWeekTable();
     renderRewards();
