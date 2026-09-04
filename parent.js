@@ -551,10 +551,68 @@ async function init() {
     if (activeKid) {
       await loadKidData();
       renderAll();
+      startPolling();
+      startIdleTimer();
     } else {
       taskListEl.innerHTML = '<div class="empty">No kids yet — add one above</div>';
     }
   } catch (err) {
     taskListEl.innerHTML = '<div class="empty">Could not load — check your connection</div>';
   }
+}
+
+// ---------- polling (picks up kid check-ins without a manual refresh) ----------
+
+const POLL_INTERVAL_MS = 15000;
+const IDLE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+
+let pollTimer = null;
+let idleTimer = null;
+
+async function refreshStatus() {
+  if (!activeKid) return;
+  try {
+    await loadKidData();
+    renderWeekTable();
+    updatePointsDisplay();
+    renderRedemptionHistory();
+    renderRewards(); // affordability may have changed
+  } catch (err) {
+    // silent — a failed background refresh shouldn't interrupt the parent
+  }
+}
+
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(() => {
+    if (document.visibilityState === 'visible') refreshStatus();
+  }, POLL_INTERVAL_MS);
+}
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && activeKid) refreshStatus();
+});
+
+// ---------- idle auto-lock (10 min of no touch/click/key -> back to PIN) ----------
+
+function resetIdleTimer() {
+  if (idleTimer) clearTimeout(idleTimer);
+  if (appContentEl.style.display === 'none') return; // not unlocked yet
+  idleTimer = setTimeout(lockOut, IDLE_TIMEOUT_MS);
+}
+function startIdleTimer() {
+  ['click', 'touchstart', 'keydown'].forEach(evt =>
+    document.addEventListener(evt, resetIdleTimer)
+  );
+  resetIdleTimer();
+}
+function lockOut() {
+  stopPolling();
+  appContentEl.style.display = 'none';
+  pinScreenEl.style.display = 'flex';
+  pinInputEl.value = '';
+  pinErrorEl.textContent = '';
 }
