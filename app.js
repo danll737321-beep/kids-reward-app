@@ -346,6 +346,8 @@ async function init() {
     renderHistory();
     updatePointsDisplay();
     renderRedemptionHistory();
+    startPolling();
+    startIdleTimer();
   } catch (err) {
     taskListEl.innerHTML = '<div class="empty">Could not load — check your connection</div>';
   }
@@ -353,3 +355,71 @@ async function init() {
 
 // kick off the kid-picker on page load
 loadKidPicker();
+
+// ---------- polling (picks up parent approvals without a manual refresh) ----------
+
+const POLL_INTERVAL_MS = 15000;
+const IDLE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+
+let pollTimer = null;
+let idleTimer = null;
+
+async function refreshStatus() {
+  if (!KID) return;
+  try {
+    const [status, activity] = await Promise.all([
+      apiGet('getWeekStatus', { kid: KID, week_start: weekStart }),
+      apiGet('getRecentActivity', { kid: KID, limit: 3 })
+    ]);
+    weekStatus = status.tasks || {};
+    balance = status.balance || 0;
+    redemptionHistory.length = 0;
+    redemptionHistory.push(...(activity || []).reverse());
+    renderWeekTable();
+    updatePointsDisplay();
+    renderRedemptionHistory();
+    renderRewards(); // affordability may have changed
+  } catch (err) {
+    // silent — a failed background refresh shouldn't interrupt the kid
+  }
+}
+
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(() => {
+    if (document.visibilityState === 'visible') refreshStatus();
+  }, POLL_INTERVAL_MS);
+}
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+// pause polling while the tab/app is in the background, resume (and
+// refresh immediately) when it comes back to the front
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && KID) refreshStatus();
+});
+
+// ---------- idle auto-lock (10 min of no touch/click/key -> back to picker) ----------
+
+function resetIdleTimer() {
+  if (idleTimer) clearTimeout(idleTimer);
+  if (!KID) return;
+  idleTimer = setTimeout(lockOut, IDLE_TIMEOUT_MS);
+}
+function startIdleTimer() {
+  ['click', 'touchstart', 'keydown'].forEach(evt =>
+    document.addEventListener(evt, resetIdleTimer)
+  );
+  resetIdleTimer();
+}
+function lockOut() {
+  stopPolling();
+  KID = null;
+  pendingKid = null;
+  appContentEl.style.display = 'none';
+  kidPickerEl.style.display = 'flex';
+  kidPickerStep1El.style.display = 'block';
+  kidPickerStep2El.style.display = 'none';
+  loadKidPicker(); // refresh the name buttons in case a kid was added/removed
+}
