@@ -143,8 +143,7 @@ function renderKidSelect() {
 
 kidSelectEl.addEventListener('change', async () => {
   activeKid = kidSelectEl.value;
-  redemptionHistory.length = 0; // switching kids clears the session-only redemption display
-  await loadKidData();
+  await loadKidData(); // re-fetches activity for the newly selected kid, replacing the old list
   renderAll();
 });
 
@@ -513,13 +512,16 @@ function renderHistory() {
 // ---------- load / render orchestration ----------
 
 async function loadKidData() {
-  const [status, history] = await Promise.all([
+  const [status, history, activity] = await Promise.all([
     apiGet('getWeekStatus', { kid: activeKid, week_start: weekStart }),
-    apiGet('getHistory', { kid: activeKid, weeks: 2 })
+    apiGet('getHistory', { kid: activeKid, weeks: 2 }),
+    apiGet('getRecentActivity', { kid: activeKid, limit: 3 })
   ]);
   weekStatus = status.tasks || {};
   balance = status.balance || 0;
   pastWeeks = history || [];
+  redemptionHistory.length = 0;
+  redemptionHistory.push(...(activity || []).reverse()); // reverse: renderRedemptionHistory re-reverses to show newest first
 }
 
 function renderAll() {
