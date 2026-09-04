@@ -358,8 +358,8 @@ loadKidPicker();
 
 // ---------- polling (picks up parent approvals without a manual refresh) ----------
 
-const POLL_INTERVAL_MS = 15000;
-const IDLE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+const POLL_INTERVAL_MS = 5000;
+const IDLE_TIMEOUT_MS = 3 * 60 * 1000; // 3 minutes
 
 let pollTimer = null;
 let idleTimer = null;
