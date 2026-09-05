@@ -246,16 +246,19 @@ async function handleKidCheck(taskId, day) {
 
 function renderRewards() {
   rewardsListEl.innerHTML = '';
-  REWARDS.forEach(reward => {
+  const sorted = REWARDS
+    .map((reward, i) => ({ reward, stableKey: i, canAfford: balance >= reward.cost }))
+    .sort((a, b) => (b.canAfford - a.canAfford) || (a.stableKey - b.stableKey));
+
+  sorted.forEach(({ reward, canAfford }) => {
     const card = document.createElement('div');
     card.className = 'reward-card';
-    const canAfford = balance >= reward.cost;
     card.innerHTML = `
       <div>
         <div class="reward-name">${reward.name}</div>
         <div class="reward-cost">${reward.cost} pts</div>
       </div>
-      <button class="reward-btn" ${canAfford ? '' : 'disabled'}>Award</button>
+      <button class="reward-btn" ${canAfford ? '' : 'disabled'}>${canAfford ? 'Award' : 'Redeem'}</button>
     `;
     card.querySelector('.reward-btn').addEventListener('click', () => redeemFixedReward(reward));
     rewardsListEl.appendChild(card);
