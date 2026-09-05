@@ -396,3 +396,5 @@ h1 {
 
 .week-title { font-size: 15px; }
 .kid-name-label { font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 19px; color: var(--coral); margin: 0 0 2px 6px; }
+
+.surprise-row select { border: 2px solid #E3E9F0; border-radius: 10px; padding: 8px 6px; font-size: 13px; font-family: inherit; background: var(--white); flex-shrink: 0; }
