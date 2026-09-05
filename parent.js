@@ -322,14 +322,29 @@ async function editTaskPointsLocal(idx) {
 
 function renderRewards() {
   rewardsListEl.innerHTML = '';
-  REWARDS.forEach((reward, idx) => {
+
+  // display affordable rewards first, unaffordable ones sink to the bottom —
+  // but keep swapping the underlying REWARDS array (by original index) so
+  // manual reordering still persists once something becomes affordable again
+  const withAfford = REWARDS.map((reward, origIdx) => ({
+    reward, origIdx, canAfford: balance >= reward.cost
+  }));
+  const sorted = withAfford
+    .map((item, i) => ({ ...item, stableKey: i }))
+    .sort((a, b) => (b.canAfford - a.canAfford) || (a.stableKey - b.stableKey));
+
+  sorted.forEach((item, displayIdx) => {
+    const { reward, origIdx, canAfford } = item;
     const card = document.createElement('div');
     card.className = 'reward-card';
-    const canAfford = balance >= reward.cost;
+
+    const prevOrigIdx = displayIdx > 0 ? sorted[displayIdx - 1].origIdx : null;
+    const nextOrigIdx = displayIdx < sorted.length - 1 ? sorted[displayIdx + 1].origIdx : null;
+
     const reorderHtml = `
       <span class="reward-reorder">
-        <button data-reward-reorder-dir="up" data-reward-reorder-idx="${idx}" ${idx === 0 ? 'disabled' : ''}>▲</button>
-        <button data-reward-reorder-dir="down" data-reward-reorder-idx="${idx}" ${idx === REWARDS.length - 1 ? 'disabled' : ''}>▼</button>
+        <button data-swap-with="${prevOrigIdx}" data-this-idx="${origIdx}" ${prevOrigIdx === null ? 'disabled' : ''}>▲</button>
+        <button data-swap-with="${nextOrigIdx}" data-this-idx="${origIdx}" ${nextOrigIdx === null ? 'disabled' : ''}>▼</button>
       </span>`;
     card.innerHTML = `
       ${reorderHtml}
@@ -337,20 +352,25 @@ function renderRewards() {
         <div class="reward-name">${reward.name}</div>
         <div class="reward-cost">${reward.cost} pts</div>
       </div>
-      <button class="reward-btn" ${canAfford ? '' : 'disabled'}>Award</button>
+      <button class="reward-btn" ${canAfford ? '' : 'disabled'}>${canAfford ? 'Award' : 'Redeem'}</button>
     `;
     card.querySelector('.reward-btn').addEventListener('click', () => redeemFixedReward(reward));
     rewardsListEl.appendChild(card);
   });
-  rewardsListEl.querySelectorAll('[data-reward-reorder-idx]').forEach(btn => {
-    btn.addEventListener('click', () => reorderRewardLocal(parseInt(btn.dataset.rewardReorderIdx, 10), btn.dataset.rewardReorderDir));
+
+  rewardsListEl.querySelectorAll('[data-swap-with]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const a = parseInt(btn.dataset.thisIdx, 10);
+      const b = parseInt(btn.dataset.swapWith, 10);
+      if (isNaN(b)) return;
+      reorderRewardLocal(a, b);
+    });
   });
 }
 
-async function reorderRewardLocal(idx, dir) {
-  const swapWith = dir === 'up' ? idx - 1 : idx + 1;
-  if (swapWith < 0 || swapWith >= REWARDS.length) return;
-  [REWARDS[idx], REWARDS[swapWith]] = [REWARDS[swapWith], REWARDS[idx]];
+async function reorderRewardLocal(idxA, idxB) {
+  if (idxB < 0 || idxB >= REWARDS.length) return;
+  [REWARDS[idxA], REWARDS[idxB]] = [REWARDS[idxB], REWARDS[idxA]];
   renderRewards();
   try {
     await apiPost('reorderRewards', { reward_ids: REWARDS.map(r => r.reward_id) });
