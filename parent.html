@@ -97,7 +97,7 @@
         <div class="surprise-row">
           <input type="text" id="surpriseName" placeholder="For what?">
           <input type="number" id="surprisePoints" placeholder="pts" min="1">
-          <button class="reward-btn" id="surpriseRedeemBtn">Redeem</button>
+          <button class="reward-btn" id="surpriseRedeemBtn">Award</button>
         </div>
       </div>
 
@@ -106,6 +106,10 @@
         <div class="surprise-row">
           <input type="text" id="newRewardName" placeholder="Reward name">
           <input type="number" id="newRewardCost" placeholder="pts" min="1">
+          <select id="newRewardCategory">
+            <option value="redeem">Redeem</option>
+            <option value="award">Award</option>
+          </select>
           <button class="reward-btn" id="addRewardBtn">Add</button>
         </div>
       </div>
