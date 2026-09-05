@@ -352,7 +352,7 @@ function renderRewards() {
         <div class="reward-name">${reward.name}</div>
         <div class="reward-cost">${reward.cost} pts</div>
       </div>
-      <button class="reward-btn" ${canAfford ? '' : 'disabled'}>Redeem</button>
+      <button class="reward-btn" ${canAfford ? '' : 'disabled'}>${reward.category === 'award' ? 'Award' : 'Redeem'}</button>
     `;
     card.querySelector('.reward-btn').addEventListener('click', () => redeemFixedReward(reward));
     rewardsListEl.appendChild(card);
@@ -491,10 +491,11 @@ function bindAddRewardCard() {
   addRewardBtn.addEventListener('click', async () => {
     const name = newRewardNameEl.value.trim();
     const cost = parseInt(newRewardCostEl.value, 10);
+    const category = document.getElementById('newRewardCategory').value;
     if (!name) { showToast('Give the reward a name'); return; }
     if (!cost || cost <= 0) { showToast('Enter points'); return; }
     try {
-      const result = await apiPost('addReward', { name, cost });
+      const result = await apiPost('addReward', { name, cost, category });
       if (!result.success) throw new Error('add reward failed');
       REWARDS.push(result.reward);
       renderRewards();
