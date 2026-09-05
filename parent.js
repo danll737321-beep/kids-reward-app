@@ -337,7 +337,7 @@ function renderRewards() {
         <div class="reward-name">${reward.name}</div>
         <div class="reward-cost">${reward.cost} pts</div>
       </div>
-      <button class="reward-btn" ${canAfford ? '' : 'disabled'}>Redeem</button>
+      <button class="reward-btn" ${canAfford ? '' : 'disabled'}>Award</button>
     `;
     card.querySelector('.reward-btn').addEventListener('click', () => redeemFixedReward(reward));
     rewardsListEl.appendChild(card);
