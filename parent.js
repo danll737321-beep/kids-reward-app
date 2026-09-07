@@ -519,15 +519,29 @@ function bindAllCards() {
 
 function renderHistory() {
   if (!pastWeeks.length) { historyListEl.innerHTML = '<div class="empty">No past weeks yet</div>'; return; }
-  historyListEl.innerHTML = pastWeeks.slice(0, 2).map(week => `
-    <div class="history-card">
-      <div>
-        <div class="history-week">${week.week_start}</div>
-        <div class="history-stats">${week.tasksCompleted} tasks completed</div>
+  historyListEl.innerHTML = pastWeeks.slice(0, 2).map((week, i) => `
+    <div class="history-card" data-history-idx="${i}">
+      <div class="history-card-summary">
+        <div>
+          <div class="history-week">${week.week_start} <span class="history-expand-hint">▾ tap for detail</span></div>
+          <div class="history-stats">${week.tasksCompleted} tasks completed</div>
+        </div>
+        <div class="history-points">${week.pointsEarned}</div>
       </div>
-      <div class="history-points">${week.pointsEarned}</div>
+      <div class="history-detail" style="display:none;">
+        ${(week.breakdown || []).length
+          ? week.breakdown.map(b => `<div class="history-detail-row"><span>${b.title}</span><span>×${b.count}</span></div>`).join('')
+          : '<div class="history-detail-row empty">No task detail recorded</div>'}
+      </div>
     </div>
   `).join('');
+
+  historyListEl.querySelectorAll('.history-card').forEach(card => {
+    card.querySelector('.history-card-summary').addEventListener('click', () => {
+      const detail = card.querySelector('.history-detail');
+      detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
+    });
+  });
 }
 
 // ---------- load / render orchestration ----------
