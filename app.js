@@ -9,6 +9,7 @@ let TASKS = [];
 let REWARDS = [];
 let weekStatus = {};
 let balance = 0;
+let weeklyEarned = 0;
 let pastWeeks = [];
 const redemptionHistory = []; // session-only, no read API for Redemptions yet
 
@@ -148,9 +149,8 @@ function showToast(msg) {
 // ---------- scoreboard ----------
 
 function updatePointsDisplay() {
-  pointsValueEl.textContent = balance;
-  const pastTotal = pastWeeks.reduce((sum, w) => sum + w.pointsEarned, 0);
-  totalValueEl.textContent = pastTotal + balance;
+  pointsValueEl.textContent = weeklyEarned;
+  totalValueEl.textContent = balance;
 }
 function renderRedemptionHistory() {
   if (!redemptionHistory.length) {
@@ -340,6 +340,7 @@ async function init() {
     REWARDS = rewards;
     weekStatus = status.tasks || {};
     balance = status.balance || 0;
+    weeklyEarned = status.weeklyEarned || 0;
     pastWeeks = history || [];
     redemptionHistory.length = 0;
     redemptionHistory.push(...(activity || []).reverse()); // reverse: renderRedemptionHistory re-reverses to show newest first
@@ -376,6 +377,7 @@ async function refreshStatus() {
     ]);
     weekStatus = status.tasks || {};
     balance = status.balance || 0;
+    weeklyEarned = status.weeklyEarned || 0;
     redemptionHistory.length = 0;
     redemptionHistory.push(...(activity || []).reverse());
     renderWeekTable();
