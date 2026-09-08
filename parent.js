@@ -297,6 +297,20 @@ async function removeTaskLocal(idx) {
   }
 }
 
+async function removeRewardLocal(idx) {
+  const reward = REWARDS[idx];
+  if (!confirm(`Remove "${reward.name}"?`)) return;
+  try {
+    const result = await apiPost('removeReward', { reward_id: reward.reward_id });
+    if (!result.success) throw new Error('remove failed');
+    REWARDS.splice(idx, 1);
+    renderRewards();
+    showToast(`Removed "${reward.name}"`);
+  } catch (err) {
+    showToast('Network hiccup, try again');
+  }
+}
+
 async function editTaskPointsLocal(idx) {
   const task = TASKS[idx];
   const input = prompt(`New points/day for "${task.title}"`, task.points);
@@ -332,6 +346,9 @@ function renderRewards() {
 
   sorted.forEach((item, displayIdx) => {
     const { reward, origIdx, canAfford } = item;
+    const row = document.createElement('div');
+    row.className = 'reward-card-row';
+
     const card = document.createElement('div');
     card.className = 'reward-card';
 
@@ -352,7 +369,16 @@ function renderRewards() {
       <button class="reward-btn" ${canAfford ? '' : 'disabled'}>${reward.category === 'award' ? 'Award' : 'Redeem'}</button>
     `;
     card.querySelector('.reward-btn').addEventListener('click', () => redeemFixedReward(reward));
-    rewardsListEl.appendChild(card);
+    row.appendChild(card);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'task-remove-btn';
+    removeBtn.title = 'Remove reward';
+    removeBtn.textContent = '✕';
+    removeBtn.addEventListener('click', () => removeRewardLocal(origIdx));
+    row.appendChild(removeBtn);
+
+    rewardsListEl.appendChild(row);
   });
 
   rewardsListEl.querySelectorAll('[data-swap-with]').forEach(btn => {
