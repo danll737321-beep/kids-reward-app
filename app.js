@@ -162,7 +162,7 @@ function renderRedemptionHistory() {
     .map(item => `
       <div class="redemption-item">
         <span class="name">${item.name}<span class="meta"> · ${item.date}</span></span>
-        <span class="cost">-${item.cost}</span>
+        <span class="cost ${item.sign === '+' ? 'positive' : ''}">${item.sign || '-'}${item.cost}</span>
       </div>
     `).join('');
 }
