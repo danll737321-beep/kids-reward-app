@@ -53,6 +53,9 @@ const toastEl = document.getElementById('toast');
 const cashPointsEl = document.getElementById('cashPoints');
 const cashPreviewEl = document.getElementById('cashPreview');
 const cashRedeemBtn = document.getElementById('cashRedeemBtn');
+const surpriseReasonEl = document.getElementById('surpriseReason');
+const surprisePointsEl = document.getElementById('surprisePoints');
+const surpriseAwardBtn = document.getElementById('surpriseAwardBtn');
 const newRewardNameEl = document.getElementById('newRewardName');
 const newRewardCostEl = document.getElementById('newRewardCost');
 const addRewardBtn = document.getElementById('addRewardBtn');
@@ -470,8 +473,30 @@ function bindAddRewardCard() {
   });
 }
 
+function bindSurpriseCard() {
+  surpriseAwardBtn.addEventListener('click', async () => {
+    const reason = surpriseReasonEl.value.trim();
+    const points = parseInt(surprisePointsEl.value, 10);
+    if (!reason) { showToast('What did they do?'); return; }
+    if (!points || points <= 0) { showToast('Enter points'); return; }
+    try {
+      const result = await apiPost('awardBonus', { kid: activeKid, reason, points });
+      if (!result.success) throw new Error('award failed');
+      balance = result.balance;
+      redemptionHistory.push({ name: reason, cost: points, date: formatToday(), sign: '+' });
+      updatePointsDisplay();
+      renderRedemptionHistory();
+      showToast(`+${points} pts for "${reason}"`);
+      surpriseReasonEl.value = ''; surprisePointsEl.value = '';
+    } catch (err) {
+      showToast('Network hiccup, try again');
+    }
+  });
+}
+
 function bindAllCards() {
   bindCashCard();
+  bindSurpriseCard();
   bindAddRewardCard();
 }
 
