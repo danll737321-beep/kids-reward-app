@@ -383,6 +383,8 @@ h1 {
 
 .task-list { display: flex; flex-direction: column; gap: 10px; padding: 4px 34px; }
 .task-card-row { position: relative; }
+.reward-card-row { position: relative; }
+.reward-card-row .task-remove-btn { right: -30px; }
 .task-card-row .task-card { width: 100%; }
 .task-card { display: flex; align-items: center; background: var(--white); border: 2px solid #E3E9F0; border-radius: 16px; padding: 12px 16px; gap: 10px; }
 .task-remove-btn { position: absolute; right: -30px; top: 50%; transform: translateY(-50%); border: none; background: none; color: var(--coral); font-size: 18px; line-height: 1; cursor: pointer; padding: 4px; }
