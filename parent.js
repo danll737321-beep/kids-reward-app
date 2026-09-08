@@ -52,12 +52,6 @@ const toastEl = document.getElementById('toast');
 const cashPointsEl = document.getElementById('cashPoints');
 const cashPreviewEl = document.getElementById('cashPreview');
 const cashRedeemBtn = document.getElementById('cashRedeemBtn');
-const bonusReasonEl = document.getElementById('bonusReason');
-const bonusPointsEl = document.getElementById('bonusPoints');
-const bonusAwardBtn = document.getElementById('bonusAwardBtn');
-const newTaskTitleEl = document.getElementById('newTaskTitle');
-const newTaskPointsEl = document.getElementById('newTaskPoints');
-const addTaskBtn = document.getElementById('addTaskBtn');
 const newRewardNameEl = document.getElementById('newRewardName');
 const newRewardCostEl = document.getElementById('newRewardCost');
 const addRewardBtn = document.getElementById('addRewardBtn');
@@ -445,47 +439,7 @@ function bindCashCard() {
   });
 }
 
-function bindBonusCard() {
-  bonusAwardBtn.addEventListener('click', async () => {
-    const reason = bonusReasonEl.value.trim();
-    const points = parseInt(bonusPointsEl.value, 10);
-    if (!reason) { showToast('What did they do?'); return; }
-    if (!points || points <= 0) { showToast('Enter points'); return; }
-    try {
-      const result = await apiPost('awardBonus', { kid: activeKid, reason, points });
-      if (!result.success) throw new Error('award failed');
-      balance = result.balance;
-      redemptionHistory.push({ name: reason, cost: points, date: formatToday(), sign: '+' });
-      updatePointsDisplay();
-      renderRedemptionHistory();
-      showToast(`+${points} pts for "${reason}"`);
-      bonusReasonEl.value = ''; bonusPointsEl.value = '';
-    } catch (err) {
-      showToast('Network hiccup, try again');
-    }
-  });
-}
-
-// ---------- add task / add reward / add kid ----------
-
-function bindAddTaskCard() {
-  addTaskBtn.addEventListener('click', async () => {
-    const title = newTaskTitleEl.value.trim();
-    const points = parseInt(newTaskPointsEl.value, 10);
-    if (!title) { showToast('Give the task a name'); return; }
-    if (!points || points <= 0) { showToast('Enter points'); return; }
-    try {
-      const result = await apiPost('addTask', { title, points });
-      if (!result.success) throw new Error('add task failed');
-      TASKS.push(result.task);
-      renderWeekTable();
-      newTaskTitleEl.value = ''; newTaskPointsEl.value = '';
-      showToast(`Added "${title}"`);
-    } catch (err) {
-      showToast('Network hiccup, try again');
-    }
-  });
-}
+// ---------- add reward / add kid ----------
 
 function bindAddRewardCard() {
   addRewardBtn.addEventListener('click', async () => {
@@ -509,8 +463,6 @@ function bindAddRewardCard() {
 
 function bindAllCards() {
   bindCashCard();
-  bindBonusCard();
-  bindAddTaskCard();
   bindAddRewardCard();
 }
 
