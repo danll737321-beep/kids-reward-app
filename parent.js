@@ -30,7 +30,6 @@ function tryUnlock() {
   if (pinInputEl.value === PARENT_PIN) {
     pinScreenEl.style.display = 'none';
     appContentEl.style.display = 'block';
-    bindAllCards();
     init();
   } else {
     pinErrorEl.textContent = 'Wrong PIN, try again';
@@ -652,3 +651,7 @@ function lockOut() {
   pinInputEl.value = '';
   pinErrorEl.textContent = '';
 }
+
+// bind all card event listeners exactly once at script load — do NOT call
+// this again on unlock, or every button click will fire multiple times
+bindAllCards();
