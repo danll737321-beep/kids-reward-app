@@ -247,6 +247,7 @@ async function handleKidCheck(taskId, day) {
 function renderRewards() {
   rewardsListEl.innerHTML = '';
   const sorted = REWARDS
+    .filter(reward => reward.category !== 'award') // award-type rewards are the parent's to hand out, not for kids to browse
     .map((reward, i) => ({ reward, stableKey: i, canAfford: balance >= reward.cost }))
     .sort((a, b) => (b.canAfford - a.canAfford) || (a.stableKey - b.stableKey));
 
@@ -258,7 +259,7 @@ function renderRewards() {
         <div class="reward-name">${reward.name}</div>
         <div class="reward-cost">${reward.cost} pts</div>
       </div>
-      <button class="reward-btn" ${canAfford ? '' : 'disabled'}>${reward.category === 'award' ? 'Award' : 'Redeem'}</button>
+      <button class="reward-btn" ${canAfford ? '' : 'disabled'}>Redeem</button>
     `;
     card.querySelector('.reward-btn').addEventListener('click', () => redeemFixedReward(reward));
     rewardsListEl.appendChild(card);
