@@ -53,9 +53,6 @@ const toastEl = document.getElementById('toast');
 const cashPointsEl = document.getElementById('cashPoints');
 const cashPreviewEl = document.getElementById('cashPreview');
 const cashRedeemBtn = document.getElementById('cashRedeemBtn');
-const surpriseNameEl = document.getElementById('surpriseName');
-const surprisePointsEl = document.getElementById('surprisePoints');
-const surpriseRedeemBtn = document.getElementById('surpriseRedeemBtn');
 const bonusReasonEl = document.getElementById('bonusReason');
 const bonusPointsEl = document.getElementById('bonusPoints');
 const bonusAwardBtn = document.getElementById('bonusAwardBtn');
@@ -423,28 +420,6 @@ function bindCashCard() {
   });
 }
 
-function bindSurpriseCard() {
-  surpriseRedeemBtn.addEventListener('click', async () => {
-    const name = surpriseNameEl.value.trim();
-    const cost = parseInt(surprisePointsEl.value, 10);
-    if (!name) { showToast('What did they earn?'); return; }
-    if (!cost || cost <= 0) { showToast('Enter points'); return; }
-    if (balance < cost) { showToast('Not enough points'); return; }
-    try {
-      const result = await apiPost('redeem', { kid: activeKid, type: 'surprise', name, cost });
-      if (!result.success) { showToast('Not enough points'); return; }
-      balance = result.balance;
-      redemptionHistory.push({ name, cost, date: formatToday() });
-      updatePointsDisplay();
-      renderRedemptionHistory();
-      showToast(`Redeemed "${name}" for ${cost} pts`);
-      surpriseNameEl.value = ''; surprisePointsEl.value = '';
-    } catch (err) {
-      showToast('Network hiccup, try again');
-    }
-  });
-}
-
 function bindBonusCard() {
   bonusAwardBtn.addEventListener('click', async () => {
     const reason = bonusReasonEl.value.trim();
@@ -509,7 +484,6 @@ function bindAddRewardCard() {
 
 function bindAllCards() {
   bindCashCard();
-  bindSurpriseCard();
   bindBonusCard();
   bindAddTaskCard();
   bindAddRewardCard();
