@@ -46,6 +46,7 @@ const weekHeadingEl = document.getElementById('weekHeading');
 const weekDayHeaderEl = document.getElementById('weekDayHeader');
 const taskListEl = document.getElementById('taskList');
 const rewardsListEl = document.getElementById('rewardsList');
+const awardListEl = document.getElementById('awardListEl');
 const historyListEl = document.getElementById('historyList');
 const redemptionHistoryEl = document.getElementById('redemptionHistory');
 const toastEl = document.getElementById('toast');
@@ -325,14 +326,22 @@ async function editTaskPointsLocal(idx) {
 // ---------- rewards ----------
 
 function renderRewards() {
-  rewardsListEl.innerHTML = '';
+  renderRewardCategory(awardListEl, 'award');
+  renderRewardCategory(rewardsListEl, 'redeem');
+}
+
+function renderRewardCategory(containerEl, category) {
+  containerEl.innerHTML = '';
+
+  // only items in this category, but origIdx still points into the full
+  // REWARDS array so reorder/remove/redeem keep working against real data
+  const withAfford = REWARDS
+    .map((reward, origIdx) => ({ reward, origIdx, canAfford: balance >= reward.cost }))
+    .filter(item => (item.reward.category === 'award') === (category === 'award'));
 
   // display affordable rewards first, unaffordable ones sink to the bottom —
   // but keep swapping the underlying REWARDS array (by original index) so
   // manual reordering still persists once something becomes affordable again
-  const withAfford = REWARDS.map((reward, origIdx) => ({
-    reward, origIdx, canAfford: balance >= reward.cost
-  }));
   const sorted = withAfford
     .map((item, i) => ({ ...item, stableKey: i }))
     .sort((a, b) => (b.canAfford - a.canAfford) || (a.stableKey - b.stableKey));
@@ -359,7 +368,7 @@ function renderRewards() {
         <div class="reward-name">${reward.name}</div>
         <div class="reward-cost">${reward.cost} pts</div>
       </div>
-      <button class="reward-btn" ${canAfford ? '' : 'disabled'}>${reward.category === 'award' ? 'Award' : 'Redeem'}</button>
+      <button class="reward-btn" ${canAfford ? '' : 'disabled'}>${category === 'award' ? 'Award' : 'Redeem'}</button>
     `;
     card.querySelector('.reward-btn').addEventListener('click', () => redeemFixedReward(reward));
     row.appendChild(card);
@@ -371,10 +380,10 @@ function renderRewards() {
     removeBtn.addEventListener('click', () => removeRewardLocal(origIdx));
     row.appendChild(removeBtn);
 
-    rewardsListEl.appendChild(row);
+    containerEl.appendChild(row);
   });
 
-  rewardsListEl.querySelectorAll('[data-swap-with]').forEach(btn => {
+  containerEl.querySelectorAll('[data-swap-with]').forEach(btn => {
     btn.addEventListener('click', () => {
       const a = parseInt(btn.dataset.thisIdx, 10);
       const b = parseInt(btn.dataset.swapWith, 10);
