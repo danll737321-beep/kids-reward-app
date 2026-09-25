@@ -1,5 +1,5 @@
 // ==== 設定 ====
-const API_URL = 'https://script.google.com/macros/s/AKfycbxdNkLfxDi33wjWTPmMYxH1otbD-GpcdBCWJP_cMEazjz-MChH5bjfpodOric4G13Hv/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwnTMe3b1dDfDMGUhcJaxMJjKSrQ7jGG6fYojigDr8Gp0ZAnJAHR-GuAmlFqkvUNHhs/exec';
 const PARENT_PIN = '1225';
 
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
