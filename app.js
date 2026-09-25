@@ -207,7 +207,7 @@ function renderWeekTable() {
       const kidCircle = document.createElement('div');
       kidCircle.className = 'circle kid' + (kidChecked ? ' checked' : '');
       kidCircle.textContent = '✓';
-      kidCircle.addEventListener('click', () => handleKidCheck(task.task_id, day));
+      kidCircle.addEventListener('click', () => handleKidCheck(task.task_id, day, kidCircle));
 
       const parentCircle = document.createElement('div');
       parentCircle.className = 'circle parent' + (parentApproved ? ' checked' : '') + ' readonly';
@@ -220,12 +220,12 @@ function renderWeekTable() {
   });
 }
 
-async function handleKidCheck(taskId, day) {
+async function handleKidCheck(taskId, day, circleEl) {
   if (!weekStatus[taskId]) weekStatus[taskId] = {};
   if (!weekStatus[taskId][day]) weekStatus[taskId][day] = { kid_checked: false, parent_approved: false };
   const prev = { ...weekStatus[taskId][day] };
   weekStatus[taskId][day].kid_checked = !prev.kid_checked;
-  renderWeekTable();
+  circleEl.classList.toggle('checked', weekStatus[taskId][day].kid_checked);
   showToast(weekStatus[taskId][day].kid_checked ? 'Nice! Waiting on parent' : 'Unchecked');
 
   try {
@@ -237,7 +237,7 @@ async function handleKidCheck(taskId, day) {
     updatePointsDisplay();
   } catch (err) {
     weekStatus[taskId][day] = prev;
-    renderWeekTable();
+    circleEl.classList.toggle('checked', prev.kid_checked);
     showToast('Network hiccup, try again');
   }
 }
@@ -390,18 +390,46 @@ async function refreshStatus() {
       apiGet('getWeekStatus', { kid: KID, week_start: weekStart }),
       apiGet('getRecentActivity', { kid: KID, limit: 3 })
     ]);
-    weekStatus = status.tasks || {};
+    applyWeekStatusDiff(status.tasks || {});
     balance = status.balance || 0;
     weeklyEarned = status.weeklyEarned || 0;
     redemptionHistory.length = 0;
     redemptionHistory.push(...(activity || []).reverse());
-    renderWeekTable();
     updatePointsDisplay();
     renderRedemptionHistory();
     renderRewards(); // affordability may have changed
   } catch (err) {
     // silent — a failed background refresh shouldn't interrupt the kid
   }
+}
+
+// Updates only the cells whose checked state actually changed, instead of
+// tearing down and rebuilding the whole task list. A full rebuild during
+// the periodic poll can destroy a button mid-tap on mobile (finger already
+// down, element replaced before touchend fires), making taps seem to do
+// nothing or "disappear". This keeps every other DOM node untouched.
+function applyWeekStatusDiff(newStatus) {
+  TASKS.forEach(task => {
+    DAYS.forEach(day => {
+      const oldDay = (weekStatus[task.task_id] && weekStatus[task.task_id][day]) || {};
+      const newDay = (newStatus[task.task_id] && newStatus[task.task_id][day]) || {};
+      const kidChanged = !!oldDay.kid_checked !== !!newDay.kid_checked;
+      const parentChanged = !!oldDay.parent_approved !== !!newDay.parent_approved;
+      if (!kidChanged && !parentChanged) return;
+
+      const cell = taskListEl.querySelector(`.day-cell[data-task="${task.task_id}"][data-day="${day}"]`);
+      if (!cell) return;
+      if (kidChanged) {
+        const kidCircle = cell.querySelector('.circle.kid');
+        if (kidCircle) kidCircle.classList.toggle('checked', !!newDay.kid_checked);
+      }
+      if (parentChanged) {
+        const parentCircle = cell.querySelector('.circle.parent');
+        if (parentCircle) parentCircle.classList.toggle('checked', !!newDay.parent_approved);
+      }
+    });
+  });
+  weekStatus = newStatus;
 }
 
 function startPolling() {
