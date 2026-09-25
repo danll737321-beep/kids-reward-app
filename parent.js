@@ -199,12 +199,12 @@ function renderWeekTable() {
       const kidCircle = document.createElement('div');
       kidCircle.className = 'circle kid' + (kidChecked ? ' checked' : '');
       kidCircle.textContent = '✓';
-      kidCircle.addEventListener('click', () => handleKidCheck(task.task_id, day));
+      kidCircle.addEventListener('click', () => handleKidCheck(task.task_id, day, kidCircle, parentCircle));
 
       const parentCircle = document.createElement('div');
       parentCircle.className = 'circle parent' + (parentApproved ? ' checked' : '');
       parentCircle.textContent = '✓';
-      parentCircle.addEventListener('click', () => handleApproval(task.task_id, day, task.points));
+      parentCircle.addEventListener('click', () => handleApproval(task.task_id, day, task.points, kidCircle, parentCircle));
 
       pair.appendChild(kidCircle);
       pair.appendChild(parentCircle);
@@ -223,14 +223,15 @@ function renderWeekTable() {
   });
 }
 
-async function handleKidCheck(taskId, day) {
+async function handleKidCheck(taskId, day, kidCircleEl, parentCircleEl) {
   if (!weekStatus[taskId]) weekStatus[taskId] = {};
   if (!weekStatus[taskId][day]) weekStatus[taskId][day] = { kid_checked: false, parent_approved: false };
   const prev = { ...weekStatus[taskId][day] };
   const wasChecked = prev.kid_checked;
   weekStatus[taskId][day].kid_checked = !wasChecked;
   if (wasChecked && prev.parent_approved) weekStatus[taskId][day].parent_approved = false;
-  renderWeekTable();
+  kidCircleEl.classList.toggle('checked', weekStatus[taskId][day].kid_checked);
+  parentCircleEl.classList.toggle('checked', weekStatus[taskId][day].parent_approved);
 
   try {
     const result = await apiPost('toggleKidCheck', { kid: activeKid, task_id: taskId, week_start: weekStart, day_of_week: day });
@@ -239,19 +240,21 @@ async function handleKidCheck(taskId, day) {
     updatePointsDisplay();
   } catch (err) {
     weekStatus[taskId][day] = prev;
-    renderWeekTable();
+    kidCircleEl.classList.toggle('checked', prev.kid_checked);
+    parentCircleEl.classList.toggle('checked', prev.parent_approved);
     showToast('Network hiccup, try again');
   }
 }
 
-async function handleApproval(taskId, day, points) {
+async function handleApproval(taskId, day, points, kidCircleEl, parentCircleEl) {
   if (!weekStatus[taskId]) weekStatus[taskId] = {};
   if (!weekStatus[taskId][day]) weekStatus[taskId][day] = { kid_checked: false, parent_approved: false };
   const prev = { ...weekStatus[taskId][day] };
   const wasApproved = prev.parent_approved;
   weekStatus[taskId][day].parent_approved = !wasApproved;
   if (!wasApproved) weekStatus[taskId][day].kid_checked = true;
-  renderWeekTable();
+  kidCircleEl.classList.toggle('checked', weekStatus[taskId][day].kid_checked);
+  parentCircleEl.classList.toggle('checked', weekStatus[taskId][day].parent_approved);
   showToast(wasApproved ? `Approval removed, -${points} pts` : `Approved +${points} pts`);
 
   try {
@@ -261,7 +264,8 @@ async function handleApproval(taskId, day, points) {
     updatePointsDisplay();
   } catch (err) {
     weekStatus[taskId][day] = prev;
-    renderWeekTable();
+    kidCircleEl.classList.toggle('checked', prev.kid_checked);
+    parentCircleEl.classList.toggle('checked', prev.parent_approved);
     showToast('Network hiccup, try again');
   }
 }
@@ -593,14 +597,51 @@ let idleTimer = null;
 async function refreshStatus() {
   if (!activeKid) return;
   try {
-    await loadKidData();
-    renderWeekTable();
+    const [status, activity] = await Promise.all([
+      apiGet('getWeekStatus', { kid: activeKid, week_start: weekStart }),
+      apiGet('getRecentActivity', { kid: activeKid, limit: 3 })
+    ]);
+    applyWeekStatusDiff(status.tasks || {});
+    balance = status.balance || 0;
+    weeklyEarned = status.weeklyEarned || 0;
+    redemptionHistory.length = 0;
+    redemptionHistory.push(...(activity || []).reverse());
     updatePointsDisplay();
     renderRedemptionHistory();
     renderRewards(); // affordability may have changed
   } catch (err) {
     // silent — a failed background refresh shouldn't interrupt the parent
   }
+}
+
+// Updates only the cells whose checked/approved state actually changed,
+// instead of tearing down and rebuilding the whole task list. A full
+// rebuild during the periodic poll can destroy a button mid-tap on mobile
+// (finger already down, element replaced before touchend fires), making
+// taps seem to do nothing or "disappear". This keeps every other DOM node
+// (reorder arrows, remove buttons, edit links) untouched.
+function applyWeekStatusDiff(newStatus) {
+  TASKS.forEach(task => {
+    DAYS.forEach(day => {
+      const oldDay = (weekStatus[task.task_id] && weekStatus[task.task_id][day]) || {};
+      const newDay = (newStatus[task.task_id] && newStatus[task.task_id][day]) || {};
+      const kidChanged = !!oldDay.kid_checked !== !!newDay.kid_checked;
+      const parentChanged = !!oldDay.parent_approved !== !!newDay.parent_approved;
+      if (!kidChanged && !parentChanged) return;
+
+      const cell = taskListEl.querySelector(`.day-cell[data-task="${task.task_id}"][data-day="${day}"]`);
+      if (!cell) return;
+      if (kidChanged) {
+        const kidCircle = cell.querySelector('.circle.kid');
+        if (kidCircle) kidCircle.classList.toggle('checked', !!newDay.kid_checked);
+      }
+      if (parentChanged) {
+        const parentCircle = cell.querySelector('.circle.parent');
+        if (parentCircle) parentCircle.classList.toggle('checked', !!newDay.parent_approved);
+      }
+    });
+  });
+  weekStatus = newStatus;
 }
 
 function startPolling() {
