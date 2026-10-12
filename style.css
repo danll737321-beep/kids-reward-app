@@ -173,6 +173,7 @@ h1 {
   color: transparent;
   cursor: pointer;
   transition: all 0.15s ease;
+  touch-action: manipulation;
 }
 .circle.kid.checked {
   background: #DCEBFA;
@@ -222,6 +223,7 @@ h1 {
   padding: 9px 16px;
   border-radius: 12px;
   cursor: pointer;
+  touch-action: manipulation;
 }
 .reward-btn:disabled {
   background: var(--grey);
